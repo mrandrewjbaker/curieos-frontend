@@ -1,4 +1,4 @@
-# mooos-fe
+# CurieOS-fe
 
 ## Project setup
 ```
