@@ -1,6 +1,11 @@
 <template>
     <div class="TaskDock">
-        <div v-for="(task, index) in tasks" v-bind:key="index" class="TaskItem">
+        <div 
+            v-for="(task, index) in dockedTasks" 
+            v-bind:key="index" class="TaskItem"
+            v-on:click="toggleMinimizeWindow(task)"
+        >
+
         </div>
     </div>
 </template>
@@ -9,12 +14,24 @@ export default {
     name: 'TaskDock',
     data () {
         return {
-            tasks: []
+            dockedTasks: [],
+            
         }
     },
     methods: {
+        syncTasks(e){
+            this.dockedTasks = [...e];
+        },
+        killWindowTask(e){
+            const targetedTask = this.dockedTasks.find((task) => task.windowId === e.windowId);
+            const targetedTaskIndex = this.dockedTasks.indexOf(targetedTask);
+            this.dockedTasks.splice(targetedTaskIndex, 1);            
+        },
         queueNewTask(task){
-            this.tasks.push(task);
+            this.dockedTasks.push(task);
+        },
+        toggleMinimizeWindow(task) {
+            this.$emit('taskdock_toggleminimizewindow', task);
         }
     }
 
@@ -30,11 +47,24 @@ export default {
     background-color: #32323250;
     
     .TaskItem {
+        position: relative;
+        bottom: 0px;
         float: left;
         height: 2rem;
         width: 2rem;
         border-radius: 100%;
         background-color: red;
+        line-height: 2rem;
+
+        &:hover {
+            height: 2.25rem;
+            width: 2.25rem;
+            line-height: 2.25rem;
+            bottom: 5px;
+
+            
+            
+        }
     }
 }
 </style>

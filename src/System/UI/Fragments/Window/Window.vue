@@ -1,7 +1,7 @@
 <template>
-    <div ref="Window" class="Window" v-bind:style="style" 
-        v-on:mousedown="handleZIndexForeground_Start"
-        v-on:touchstart="handleZIndexForeground_Start"
+    <div ref="Window" class="Window" v-bind:style="styleProps" 
+        v-on:mousedown="Window_bringForward"
+        v-on:touchstart="Window_bringForward"
         >
         <div class="Window_resize">
             <div 
@@ -95,6 +95,14 @@ export default {
             positionY: 0,
             positionZ: 0,
             style: '',
+            styleProps: {
+                '--window-height': '100%',
+                '--window-width': '60%',
+                '--window-top': '0px',
+                '--window-left': '0px',
+                '--window-z-index': 11,
+                
+            },
             windowCursorDistance: {
                 x: 0,
                 y: 0,
@@ -102,7 +110,7 @@ export default {
         }
     },
     props: [
-        "id",
+        "windowId",
         "title",
         "application",
         "isActive",
@@ -123,28 +131,22 @@ export default {
     },
     methods: {
         Window_minimize() {
-            this.$emit('Window_minimize', {id: this.id});
+            this.$emit('window_minimize', {windowId: this.windowId});
         },
         Window_maximize() {
-            this.$emit('Window_minimize', {id: this.id});
+            this.styleProps['--window-top'] = '0px';
+            this.styleProps['--window-left'] = '0px';
+            this.styleProps['--window-width'] = '100%';
         },
         Window_close() {
-            this.$emit('Window_close', {id: this.id});
+            this.$emit('window_close', { windowId: this.windowId });
         },
         handleChange_isActive(newValue){
-            this.positionX = this.$refs.Window.style.left;
-            this.positionY = this.$refs.Window.style.top;
-
-            this.positionZ = newValue ? 11 : 10
-            this.style = `z-index: ${this.positionZ}; top: ${this.positionY}px; left: ${this.positionX}px;`;
-
+            this.styleProps['--window-z-index'] = newValue ? 11 : 10;
         },
-        handleZIndexForeground_Start (e) {
-            const windowPositions = e.target;
-            this.positionX = e.left;
-            this.positionY = e.top; 
-            console.log('window clicked')
-            this.$emit('Window_BringForward', {id: this.id});
+        Window_bringForward (e) {
+            const targetWindow = e.target;
+            this.$emit('window_bringforward', {windowId: this.windowId});
         },
         updateWindowCursorDistance (e) {
             const windowPositions = e.target.parentNode.getBoundingClientRect();
@@ -167,16 +169,14 @@ export default {
         handleDrag (e) {
             if(e.x != undefined && e.y != undefined){
                 if(e.x != 0 && e.y != 0) {
-                    this.positionX = e.x - this.windowCursorDistance.x;
-                    this.positionY = e.y - this.windowCursorDistance.y;
-                    this.style = `z-index: ${this.positionZ}; top: ${this.positionY}px; left: ${this.positionX}px;`;
+                    this.styleProps['--window-left'] = `${e.x - this.windowCursorDistance.x}px`;
+                    this.styleProps['--window-top'] = `${e.y - this.windowCursorDistance.y}px`;
                 }
             }else{
                 var evt = (typeof e.originalEvent === 'undefined') ? e : e.originalEvent;
                 var touch = evt.touches[0] || evt.changedTouches[0];
-                this.positionX = touch.screenX - this.windowCursorDistance.x;
-                this.positionY = touch.screenY - this.windowCursorDistance.y;
-                this.style = `z-index: ${this.positionZ}; top: ${this.positionY}px; left: ${this.positionX}px;`;
+                this.styleProps['--window-left'] = touch.screenX - this.windowCursorDistance.x;
+                this.styleProps['--window-right'] = touch.screenY - this.windowCursorDistance.y;
             }
         },
         handleResize (e, position) {
@@ -184,15 +184,21 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
+<style scoped>
+.Window {
+    height: var(--window-height);
+    width: var(--window-width);
+    top: var(--window-top);
+    left: var(--window-left);
+    z-index: var(--window-z-index);
+}
+</style>
+<style lang="scss">
 .Window {
     position: absolute;
     float: left;
-    z-index: 10;
-    height: 75vh;
     width: 80vw;
     background-color: #ffffff21;
-    top: 2rem;
     // border-left: 1px solid #fefefe50;
     // border-right: 1px solid #fefefe50;
     // border-bottom: 1px solid #fefefe50;

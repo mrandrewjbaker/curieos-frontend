@@ -2,19 +2,24 @@
     <div class="Desktop_view">
         <TaskManager 
             ref="TaskManager" 
-            @TaskManager_queueNewWindow="WindowManager_queueNewWindow"
+            @taskmanager_queuenewwindow="TaskManager_queueNewWindow"
+            @taskmanager_synctasks="TaskManager_syncTasks"
+            @taskmanager_minimizewindowtask="TaskManager_minimizeWindowTask"
         />
         <SystemBar
 
         />
         <SystemMenuAndButton 
-            @SystemMenuAndButton_queueNewWindowTask="WindowManager_TaskManager_queueNewWindowTask"
+            @systemmenuandbutton_queuenewwindowtask="WindowManager_TaskManager_queueNewWindowTask"
         />
         <TaskDock 
-            ref="TaskDock" 
+            ref="TaskDock"
+            @taskdock_toggleminimizewindow="TaskDock_toggleMinimizeWindow"
         />
         <WindowManager
-            ref="WindowManager" 
+            ref="WindowManager"
+            @windowmanager_killwindowtask="WindowManager_killWindowTask"
+            @windowmanager_minimizewindowtask="WindowManager_minimizeWindowTask"
         />
     </div>
 </template>
@@ -30,18 +35,36 @@ export default {
     components: {
         SystemBar,
         SystemMenuAndButton,
-        TaskDock,
-        WindowManager,
         TaskManager,
+        WindowManager,
+        TaskDock,
+
     },
     methods: {
-        WindowManager_queueNewWindow(e){
-            this.$refs.WindowManager.queueNewWindow(e)
-            this.$refs.TaskDock.queueNewTask(e)
+        TaskManager_syncTasks(e){
+            this.$refs.WindowManager.syncTasks(e);
+            this.$refs.TaskDock.syncTasks(e);
+        },
+        TaskManager_queueNewWindow(e){
+            const newWindow = this.$refs.WindowManager.queueNewWindow(e)
+            this.$refs.TaskManager.syncTaskAndWindow(newWindow)
+            this.$refs.TaskDock.queueNewTask(newWindow);
+        },
+        TaskManager_minimizeWindowTask(e){
+            this.$refs.WindowManager.TaskManager_Window_minimize(e)
+        },
+        WindowManager_killWindowTask(e){
+            this.$refs.TaskManager.killWindowTask(e);
+        },
+        WindowManager_minimizeWindowTask(e){
+            this.$refs.TaskManager.minimizeWindowTask(e);
         },
         WindowManager_TaskManager_queueNewWindowTask(e){
-            this.$refs.TaskManager.queueNewTask(e)
+            this.$refs.TaskManager.queueNewTask(e);
         },
+        TaskDock_toggleMinimizeWindow(e) {
+            this.$refs.WindowManager.toggleMinimizeWindow(e);
+        }
     }
 }
 </script>

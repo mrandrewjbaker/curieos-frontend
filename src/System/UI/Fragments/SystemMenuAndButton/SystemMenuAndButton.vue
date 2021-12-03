@@ -43,7 +43,7 @@ export default {
             this.menuOpened = !this.menuOpened;
         },
         openWindow(application){
-            this.$emit('SystemMenuAndButton_queueNewWindowTask', { type: 'window', application})
+            this.$emit('systemmenuandbutton_queuenewwindowtask', { type: 'window', application})
             this.trigger_menuOpened()
         }
     }
